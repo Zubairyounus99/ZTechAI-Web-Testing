@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
-import { getLiveConfig } from "@/config/site";
+import { getLiveConfig, validateRuntimeConfig } from "@/config/site";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const config = getLiveConfig();
+  const validation = validateRuntimeConfig(config);
+
   return NextResponse.json(
     {
       status: "online",
       timestamp: new Date().toISOString(),
+      validation,
       runtimeEnvironment: {
         siteName: config.name,
         siteUrl: config.siteUrl,

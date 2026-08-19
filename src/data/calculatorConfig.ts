@@ -1,16 +1,14 @@
 import { siteConfig } from "@/config/site";
 
-const envRate = Number(process.env.NEXT_PUBLIC_AI_COST_PER_MINUTE);
-const dynamicRate = !isNaN(envRate) && envRate > 0 ? envRate : siteConfig.calculator.aiCostPerMinute;
-
-// Centralized Configuration Constants for ZTechAI Calculator & Economic Models
+// Centralized Static Constants & Bounds for ZTechAI Calculator Models
+// Rate is dynamically supplied at runtime via siteConfig & useConfig()
 export const CALCULATOR_CONFIG = {
-  // Internal calculation value only — never publicly displayed in page text or metadata
-  AI_COST_PER_MINUTE: dynamicRate || 0.30,
+  // Static fallback rate (Dynamic rate is resolved at runtime via useConfig())
+  AI_COST_PER_MINUTE: siteConfig.calculator.aiCostPerMinute || 0.30,
 
   // Average realistic productive phone call minutes per full-time employee per month
   // (Assumes ~21.5 working days/month, ~4 hours/day of active live talk time + 4 hours for admin, breaks, research & wrap-up)
-  MAX_PRODUCTIVE_CALL_MINUTES_PER_EMPLOYEE_PER_MONTH: siteConfig.calculator.maxProductiveMinutesPerEmployeePerMonth,
+  MAX_PRODUCTIVE_CALL_MINUTES_PER_EMPLOYEE_PER_MONTH: 5000,
 
   // Default values for initial calculator state
   DEFAULTS: {

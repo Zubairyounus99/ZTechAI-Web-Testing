@@ -1,6 +1,6 @@
 // ==========================================================
 // ZTechAI — Central Dynamic Runtime Configuration Layer
-// Real-time evaluation across Server (SSR) and Client (Hydration)
+// Single source of truth across Server (SSR) and Client (Hydration)
 // ==========================================================
 
 export interface SiteConfig {
@@ -45,6 +45,12 @@ export interface SiteConfig {
     resources: { label: string; href: string }[];
     legal: { label: string; href: string }[];
   };
+}
+
+export interface ConfigValidationResult {
+  isValid: boolean;
+  warnings: string[];
+  errors: string[];
 }
 
 /**
@@ -183,6 +189,47 @@ export function getLiveConfig(): SiteConfig {
         { label: "Security Policy", href: "/security" },
       ],
     },
+  };
+}
+
+/**
+ * Validates configuration health at runtime
+ */
+export function validateRuntimeConfig(config: SiteConfig = getLiveConfig()): ConfigValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Check email format
+  if (!config.email || !config.email.includes("@")) {
+    errors.push(`Invalid or missing CONTACT_EMAIL: "${config.email}"`);
+  }
+
+  // Check phone length
+  if (!config.phone || config.phone.replace(/\D/g, "").length < 7) {
+    errors.push(`Invalid or missing CONTACT_PHONE: "${config.phone}"`);
+  }
+
+  // Check Cal.com booking URL
+  if (!config.calBookingUrl || !config.calBookingUrl.startsWith("http")) {
+    errors.push(`Invalid CAL_BOOKING_URL: "${config.calBookingUrl}"`);
+  } else if (!config.calBookingUrl.includes("cal.com")) {
+    warnings.push(`CAL_BOOKING_URL does not appear to be a cal.com URL: "${config.calBookingUrl}"`);
+  }
+
+  // Check AI Cost per minute
+  if (typeof config.calculator.aiCostPerMinute !== "number" || isNaN(config.calculator.aiCostPerMinute) || config.calculator.aiCostPerMinute <= 0) {
+    errors.push(`Invalid AI_COST_PER_MINUTE: must be a positive number, got "${config.calculator.aiCostPerMinute}"`);
+  }
+
+  // Check Site URL
+  if (!config.siteUrl || !config.siteUrl.startsWith("http")) {
+    errors.push(`Invalid SITE_URL: "${config.siteUrl}"`);
+  }
+
+  return {
+    isValid: errors.length === 0,
+    warnings,
+    errors,
   };
 }
 

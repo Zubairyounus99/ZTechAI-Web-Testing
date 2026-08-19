@@ -210,21 +210,25 @@ export default function RootLayout({
         />
 
         {/* Google Analytics 4 - Loaded with lazyOnload to maximize Mobile PageSpeed & eliminate TBT */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-H57HRPFNJ9"
-          strategy="lazyOnload"
-        />
-        <Script id="google-analytics" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
+        {runtimeEnvPayload.NEXT_PUBLIC_GA_ID ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${runtimeEnvPayload.NEXT_PUBLIC_GA_ID}`}
+              strategy="lazyOnload"
+            />
+            <Script id="google-analytics" strategy="lazyOnload">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
 
-            gtag('config', 'G-H57HRPFNJ9', {
-              page_path: window.location.pathname,
-            });
-          `}
-        </Script>
+                gtag('config', '${runtimeEnvPayload.NEXT_PUBLIC_GA_ID}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        ) : null}
 
         {/* Schema.org Structured Data */}
         <script
