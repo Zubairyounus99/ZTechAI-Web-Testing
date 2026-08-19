@@ -2,7 +2,7 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { industriesData } from "@/data/industries";
-import { siteConfig } from "@/data/siteConfig";
+import { siteConfig } from "@/config/site";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
 import { FaqSection } from "@/components/sections/FaqSection";
 import { CheckCircle2, Clock, Sparkles } from "lucide-react";

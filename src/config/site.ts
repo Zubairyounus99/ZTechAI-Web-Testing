@@ -186,12 +186,7 @@ export function getLiveConfig(): SiteConfig {
   };
 }
 
-// Live reactive Proxy so any property access evaluates dynamically at runtime
-export const siteConfig: SiteConfig = new Proxy({} as SiteConfig, {
-  get(_target, prop: string) {
-    const live = getLiveConfig();
-    return (live as unknown as Record<string, unknown>)[prop];
-  },
-});
+// Plain serializable singleton for initial rendering
+export const siteConfig: SiteConfig = getLiveConfig();
 
 export default siteConfig;

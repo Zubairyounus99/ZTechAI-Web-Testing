@@ -25,39 +25,37 @@ export interface ConfigContextType {
 
 const ConfigContext = createContext<ConfigContextType | null>(null);
 
-export function ConfigProvider({
-  initialConfig,
-  children,
-}: {
-  initialConfig?: SiteConfig;
-  children: React.ReactNode;
-}) {
-  const [config, setConfig] = useState<SiteConfig>(() => initialConfig || getLiveConfig());
+export function ConfigProvider({ children }: { children: React.ReactNode }) {
+  const [config, setConfig] = useState<SiteConfig>(() => getLiveConfig());
 
   useEffect(() => {
     // Re-evaluate live configuration on client mount after window.__APP_ENV__ script execution
     const live = getLiveConfig();
-    setConfig(live);
+    if (live && live.calculator) {
+      setConfig(live);
+    }
   }, []);
 
+  const safeConfig = config && config.calculator ? config : getLiveConfig();
+
   const value: ConfigContextType = {
-    config,
-    email: config.email,
-    phone: config.phone,
-    phoneFormatted: config.phoneFormatted,
-    phoneTel: config.phoneTel,
-    calBookingUrl: config.calBookingUrl,
-    calEmbedUrl: config.calEmbedUrl,
-    aiCostPerMinute: config.calculator.aiCostPerMinute,
-    socialLinks: config.socialLinks,
-    name: config.name,
-    siteUrl: config.siteUrl,
-    primaryCtaText: config.primaryCtaText,
-    secondaryCtaText: config.secondaryCtaText,
-    navLinks: config.navLinks,
-    footerLinks: config.footerLinks,
-    tagline: config.tagline,
-    trustStatement: config.trustStatement,
+    config: safeConfig,
+    email: safeConfig.email || "admin@ztechai.us",
+    phone: safeConfig.phone || "+1 (321) 499-87777",
+    phoneFormatted: safeConfig.phoneFormatted || "+1 (321) 499-87777",
+    phoneTel: safeConfig.phoneTel || "+132149987777",
+    calBookingUrl: safeConfig.calBookingUrl || "https://cal.com/zubair-younus-4tlv0b/ai-voice-agent",
+    calEmbedUrl: safeConfig.calEmbedUrl || "https://app.cal.com/zubair-younus-4tlv0b/ai-voice-agent?embed=true&theme=dark&layout=month_view",
+    aiCostPerMinute: safeConfig.calculator?.aiCostPerMinute ?? 0.30,
+    socialLinks: safeConfig.socialLinks || { linkedin: "", youtube: "", facebook: "", instagram: "", whatsapp: "" },
+    name: safeConfig.name || "ZTechAI",
+    siteUrl: safeConfig.siteUrl || "https://ztechai.us",
+    primaryCtaText: safeConfig.primaryCtaText || "Book Your 15-Minute AI Discovery",
+    secondaryCtaText: safeConfig.secondaryCtaText || "Talk to Our AI",
+    navLinks: safeConfig.navLinks || [],
+    footerLinks: safeConfig.footerLinks || { solutions: [], industries: [], company: [], resources: [], legal: [] },
+    tagline: safeConfig.tagline || "Custom AI Voice Agents for US Businesses",
+    trustStatement: safeConfig.trustStatement || "Built for US businesses that depend on calls, customers, and appointments.",
   };
 
   return <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>;
@@ -66,26 +64,25 @@ export function ConfigProvider({
 export function useConfig(): ConfigContextType {
   const context = useContext(ConfigContext);
   if (!context) {
-    // Fallback if rendered outside provider
     const live = getLiveConfig();
     return {
       config: live,
-      email: live.email,
-      phone: live.phone,
-      phoneFormatted: live.phoneFormatted,
-      phoneTel: live.phoneTel,
-      calBookingUrl: live.calBookingUrl,
-      calEmbedUrl: live.calEmbedUrl,
-      aiCostPerMinute: live.calculator.aiCostPerMinute,
-      socialLinks: live.socialLinks,
-      name: live.name,
-      siteUrl: live.siteUrl,
-      primaryCtaText: live.primaryCtaText,
-      secondaryCtaText: live.secondaryCtaText,
-      navLinks: live.navLinks,
-      footerLinks: live.footerLinks,
-      tagline: live.tagline,
-      trustStatement: live.trustStatement,
+      email: live.email || "admin@ztechai.us",
+      phone: live.phone || "+1 (321) 499-87777",
+      phoneFormatted: live.phoneFormatted || "+1 (321) 499-87777",
+      phoneTel: live.phoneTel || "+132149987777",
+      calBookingUrl: live.calBookingUrl || "https://cal.com/zubair-younus-4tlv0b/ai-voice-agent",
+      calEmbedUrl: live.calEmbedUrl || "https://app.cal.com/zubair-younus-4tlv0b/ai-voice-agent?embed=true&theme=dark&layout=month_view",
+      aiCostPerMinute: live.calculator?.aiCostPerMinute ?? 0.30,
+      socialLinks: live.socialLinks || { linkedin: "", youtube: "", facebook: "", instagram: "", whatsapp: "" },
+      name: live.name || "ZTechAI",
+      siteUrl: live.siteUrl || "https://ztechai.us",
+      primaryCtaText: live.primaryCtaText || "Book Your 15-Minute AI Discovery",
+      secondaryCtaText: live.secondaryCtaText || "Talk to Our AI",
+      navLinks: live.navLinks || [],
+      footerLinks: live.footerLinks || { solutions: [], industries: [], company: [], resources: [], legal: [] },
+      tagline: live.tagline || "Custom AI Voice Agents for US Businesses",
+      trustStatement: live.trustStatement || "Built for US businesses that depend on calls, customers, and appointments.",
     };
   }
   return context;
