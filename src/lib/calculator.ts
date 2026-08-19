@@ -46,7 +46,10 @@ export interface CalculatorResult {
  * Pure, mathematically rigorous ROI calculation function for ZTechAI.
  * Separates computation from UI rendering and handles all edge cases safely.
  */
-export function calculateROI(inputs: Partial<CalculatorInputs>): CalculatorResult {
+export function calculateROI(
+  inputs: Partial<CalculatorInputs>,
+  customRate?: number
+): CalculatorResult {
   // Safe extraction and sanitization
   const rawCalls = Number(inputs.monthlyCalls);
   const rawDuration = Number(inputs.averageCallDuration);
@@ -65,33 +68,32 @@ export function calculateROI(inputs: Partial<CalculatorInputs>): CalculatorResul
     const fallbackDuration = Math.max(0, isNaN(rawDuration) ? 0 : rawDuration);
     const fallbackEmployees = Math.max(1, isNaN(rawEmployees) ? 1 : rawEmployees);
     const fallbackCost = Math.max(0, isNaN(rawCost) ? 0 : rawCost);
-    const fallbackMinutes = fallbackCalls * fallbackDuration;
-    const fallbackAiCost = fallbackMinutes * CALCULATOR_CONFIG.AI_COST_PER_MINUTE;
-    const fallbackTradCost = fallbackEmployees * fallbackCost;
-    const fallbackSavings = fallbackTradCost - fallbackAiCost;
 
     return {
       monthlyCalls: fallbackCalls,
       averageCallDuration: fallbackDuration,
       employees: fallbackEmployees,
       employeeCost: fallbackCost,
-      monthlyMinutes: fallbackMinutes,
+      monthlyMinutes: Math.round(fallbackCalls * fallbackDuration),
       recommendedEmployees: 1,
       isUnderstaffed: false,
       staffingShortfall: 0,
-      aiMonthlyCost: fallbackAiCost,
-      enteredTraditionalCost: fallbackTradCost,
-      recommendedTraditionalCost: fallbackTradCost,
-      enteredSavings: fallbackSavings,
-      enteredSavingsPercentage: fallbackTradCost > 0 ? (fallbackSavings / fallbackTradCost) * 100 : 0,
-      recommendedSavings: fallbackSavings,
-      recommendedSavingsPercentage: fallbackTradCost > 0 ? (fallbackSavings / fallbackTradCost) * 100 : 0,
-      annualizedSavings: fallbackSavings * 12,
+      aiMonthlyCost: 0,
+      enteredTraditionalCost: Math.round(fallbackEmployees * fallbackCost),
+      recommendedTraditionalCost: Math.round(fallbackEmployees * fallbackCost),
+      enteredSavings: Math.round(fallbackEmployees * fallbackCost),
+      enteredSavingsPercentage: 100,
+      recommendedSavings: Math.round(fallbackEmployees * fallbackCost),
+      recommendedSavingsPercentage: 100,
+      annualizedSavings: Math.round(fallbackEmployees * fallbackCost * 12),
       isValid: false,
-      validationMessage: "Please enter valid positive values for all calculator fields.",
-      isLowSavings: fallbackSavings <= 0,
+      validationMessage: "Please provide positive numbers for all fields to compute ROI.",
+      isLowSavings: false,
     };
   }
+
+  // Active rate evaluation
+  const activeRate = typeof customRate === "number" && customRate > 0 ? customRate : (CALCULATOR_CONFIG.AI_COST_PER_MINUTE || 0.30);
 
   // Workload calculations
   const monthlyCalls = Math.round(rawCalls);
@@ -100,7 +102,7 @@ export function calculateROI(inputs: Partial<CalculatorInputs>): CalculatorResul
   const employeeCost = rawCost;
 
   const monthlyMinutes = Math.round(monthlyCalls * averageCallDuration);
-  const aiMonthlyCost = Math.round(monthlyMinutes * CALCULATOR_CONFIG.AI_COST_PER_MINUTE * 100) / 100;
+  const aiMonthlyCost = Math.round(monthlyMinutes * activeRate * 100) / 100;
   const enteredTraditionalCost = Math.round(employees * employeeCost * 100) / 100;
 
   // Capacity validation

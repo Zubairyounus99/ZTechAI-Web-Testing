@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { siteConfig } from "@/config/site";
+import { useConfig } from "@/components/providers/ConfigProvider";
 import { CalModal } from "@/components/ui/CalModal";
 import { trackEvent } from "@/lib/analytics";
 import {
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 
 export function FinalCta() {
+  const { email, phone, phoneTel, phoneFormatted, primaryCtaText, secondaryCtaText } = useConfig();
   const [calOpen, setCalOpen] = useState(false);
 
   const handleBookDemo = () => {
@@ -59,7 +61,7 @@ export function FinalCta() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-brand-500 via-brand-600 to-accent-600 px-8 py-4 text-base font-semibold text-white shadow-xl shadow-brand-500/25 hover:scale-[1.02] hover:shadow-brand-500/40 active:scale-[0.98] transition-all"
             >
               <Calendar className="h-5 w-5" />
-              <span>{siteConfig.primaryCtaText}</span>
+              <span>{primaryCtaText}</span>
               <ArrowRight className="h-4 w-4" />
             </button>
 
@@ -68,7 +70,7 @@ export function FinalCta() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-surface-border bg-surface-muted px-7 py-4 text-base font-semibold text-foreground hover:border-brand-500/40 hover:bg-surface-elevated transition-all"
             >
               <Sparkles className="h-5 w-5 text-brand-500 dark:text-brand-400" />
-              <span>{siteConfig.secondaryCtaText}</span>
+              <span>{secondaryCtaText}</span>
             </button>
           </div>
           <p className="text-xs text-text-muted font-medium">
@@ -78,22 +80,22 @@ export function FinalCta() {
 
         {/* Direct Contacts */}
         <div className="pt-8 border-t border-surface-border flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs sm:text-sm text-text-muted font-medium">
-          {siteConfig.email && (
+          {email && (
             <a
-              href={`mailto:${siteConfig.email}`}
+              href={`mailto:${email}`}
               className="flex items-center gap-2 hover:text-brand-500 dark:hover:text-brand-400 transition-colors"
             >
               <Mail className="h-4 w-4 text-brand-500 dark:text-brand-400" />
-              <span>{siteConfig.email}</span>
+              <span>{email}</span>
             </a>
           )}
-          {siteConfig.phone && (
+          {phone && (
             <a
-              href={`tel:${siteConfig.phoneTel}`}
+              href={`tel:${phoneTel}`}
               className="flex items-center gap-2 hover:text-brand-500 dark:hover:text-brand-400 transition-colors"
             >
               <Phone className="h-4 w-4 text-brand-500 dark:text-brand-400" />
-              <span>{siteConfig.phoneFormatted}</span>
+              <span>{phoneFormatted}</span>
             </a>
           )}
         </div>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
+import { useConfig } from "@/components/providers/ConfigProvider";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { CalModal } from "@/components/ui/CalModal";
@@ -10,6 +11,7 @@ import { trackEvent } from "@/lib/analytics";
 import { Menu, X, Phone, ArrowRight, Sparkles, Calendar } from "lucide-react";
 
 export function Navbar() {
+  const { phoneTel, phoneFormatted, phone, primaryCtaText, navLinks } = useConfig();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [calOpen, setCalOpen] = useState(false);
@@ -80,7 +82,7 @@ export function Navbar() {
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-500 to-accent-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-brand-500/25 transition-all hover:scale-[1.02] hover:shadow-brand-500/40 active:scale-[0.98]"
             >
               <Calendar className="h-3.5 w-3.5" />
-              <span>{siteConfig.primaryCtaText}</span>
+              <span>{primaryCtaText}</span>
             </button>
           </div>
 
@@ -106,7 +108,7 @@ export function Navbar() {
               <p className="text-xs uppercase tracking-wider text-text-muted font-bold">Navigation</p>
             </div>
             <nav className="flex flex-col space-y-3">
-              {siteConfig.navLinks.map((link) => (
+              {navLinks.map((link) => (
                 <Link
                   key={link.label}
                   href={link.href}
@@ -119,14 +121,14 @@ export function Navbar() {
               ))}
             </nav>
 
-            {siteConfig.phone && (
+            {phone && (
               <div className="pt-4 border-t border-surface-border space-y-3">
                 <a
-                  href={`tel:${siteConfig.phoneTel}`}
+                  href={`tel:${phoneTel}`}
                   className="flex items-center gap-3 text-sm font-semibold text-foreground hover:text-brand-500 py-1"
                 >
                   <Phone className="h-4 w-4 text-brand-500 dark:text-brand-400" />
-                  <span>{siteConfig.phoneFormatted}</span>
+                  <span>{phoneFormatted}</span>
                 </a>
               </div>
             )}
@@ -151,7 +153,7 @@ export function Navbar() {
               className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-500 to-accent-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/25"
             >
               <Calendar className="h-4 w-4" />
-              <span>{siteConfig.primaryCtaText}</span>
+              <span>{primaryCtaText}</span>
             </button>
           </div>
         </div>

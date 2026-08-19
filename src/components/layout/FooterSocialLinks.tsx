@@ -1,9 +1,10 @@
 import React from "react";
 import { siteConfig } from "@/config/site";
+import { useConfig } from "@/components/providers/ConfigProvider";
 import { Linkedin, Youtube, Instagram, Facebook, MessageCircle } from "lucide-react";
 
 export function FooterSocialLinks() {
-  const { socialLinks } = siteConfig;
+  const { socialLinks, name } = useConfig();
 
   const profiles = [
     {
@@ -51,8 +52,8 @@ export function FooterSocialLinks() {
           href={soc.url}
           target="_blank"
           rel="noopener noreferrer"
-          title={`Visit ${siteConfig.name} on ${soc.name}`}
-          aria-label={`Visit ${siteConfig.name} on ${soc.name}`}
+          title={`Visit ${name} on ${soc.name}`}
+          aria-label={`Visit ${name} on ${soc.name}`}
           className="p-2 rounded-xl border border-surface-border bg-surface-muted text-text-muted hover:text-brand-500 hover:border-brand-500/30 transition-all hover:scale-105"
         >
           {soc.icon}

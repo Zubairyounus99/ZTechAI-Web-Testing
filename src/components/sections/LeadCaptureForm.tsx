@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { siteConfig } from "@/config/site";
+import { useConfig } from "@/components/providers/ConfigProvider";
 import { CalModal } from "@/components/ui/CalModal";
 import { trackEvent } from "@/lib/analytics";
 import {
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 
 export function LeadCaptureForm() {
+  const { phone, phoneTel, phoneFormatted } = useConfig();
   const [formData, setFormData] = useState({
     name: "",
     businessName: "",
@@ -139,14 +141,14 @@ export function LeadCaptureForm() {
                 </p>
               </div>
 
-              {siteConfig.phone && (
+              {phone && (
                 <div className="pt-2">
                   <a
-                    href={`tel:${siteConfig.phoneTel}`}
+                    href={`tel:${phoneTel}`}
                     className="inline-flex items-center gap-2 text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline"
                   >
                     <Phone className="h-3.5 w-3.5" />
-                    <span>Prefer to speak immediately? Call {siteConfig.phoneFormatted}</span>
+                    <span>Prefer to speak immediately? Call {phoneFormatted}</span>
                   </a>
                 </div>
               )}

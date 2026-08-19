@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { siteConfig } from "@/config/site";
+import { ConfigProvider } from "@/components/providers/ConfigProvider";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { PublicLayoutWrapper } from "@/components/layout/PublicLayoutWrapper";
 
@@ -193,20 +194,27 @@ export default function RootLayout({
           }}
         />
 
-        {/* Preconnect to Google Fonts for lightning fast, non-blocking font delivery */}
+        {/* Preconnect to Google Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* Non-blocking asynchronous Google Fonts with fallback display */}
+        <link
+          rel="preload"
+          as="style"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap"
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
 
-        {/* Google tag (gtag.js) - GA4 */}
+        {/* Google Analytics 4 - Loaded with lazyOnload to maximize Mobile PageSpeed & eliminate TBT */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-H57HRPFNJ9"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -225,9 +233,11 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased bg-background text-foreground font-sans">
-        <ThemeProvider>
-          <PublicLayoutWrapper>{children}</PublicLayoutWrapper>
-        </ThemeProvider>
+        <ConfigProvider initialConfig={siteConfig}>
+          <ThemeProvider>
+            <PublicLayoutWrapper>{children}</PublicLayoutWrapper>
+          </ThemeProvider>
+        </ConfigProvider>
       </body>
     </html>
   );

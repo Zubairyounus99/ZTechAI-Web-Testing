@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { siteConfig } from "@/config/site";
+import { useConfig } from "@/components/providers/ConfigProvider";
 import { CalModal } from "@/components/ui/CalModal";
 import { AudioWaveform } from "@/components/ui/AudioWaveform";
 import { trackEvent } from "@/lib/analytics";
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 
 export function Hero() {
+  const { name, primaryCtaText, secondaryCtaText } = useConfig();
   const [calOpen, setCalOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
 

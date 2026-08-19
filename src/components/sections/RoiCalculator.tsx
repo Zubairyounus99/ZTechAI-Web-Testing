@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { siteConfig } from "@/config/site";
+import { useConfig } from "@/components/providers/ConfigProvider";
 import { CALCULATOR_CONFIG } from "@/data/calculatorConfig";
 import { calculateROI, CalculatorInputs } from "@/lib/calculator";
 import { CalModal } from "@/components/ui/CalModal";
@@ -25,6 +26,8 @@ import {
 } from "lucide-react";
 
 export function RoiCalculator() {
+  const { aiCostPerMinute } = useConfig();
+
   const [inputs, setInputs] = useState<CalculatorInputs>({
     monthlyCalls: CALCULATOR_CONFIG.DEFAULTS.monthlyCalls,
     averageCallDuration: CALCULATOR_CONFIG.DEFAULTS.averageCallDuration,
@@ -37,8 +40,8 @@ export function RoiCalculator() {
 
   // Compute pure calculation results in real-time
   const result = useMemo(() => {
-    return calculateROI(inputs);
-  }, [inputs]);
+    return calculateROI(inputs, aiCostPerMinute);
+  }, [inputs, aiCostPerMinute]);
 
   const handleInputChange = (field: keyof CalculatorInputs, value: number) => {
     setInputs((prev) => ({

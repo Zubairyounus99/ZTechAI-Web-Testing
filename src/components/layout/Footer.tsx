@@ -1,11 +1,14 @@
 import React from "react";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
+import { useConfig } from "@/components/providers/ConfigProvider";
 import { Logo } from "@/components/ui/Logo";
 import { Mail, Phone, Shield } from "lucide-react";
 import { FooterSocialLinks } from "./FooterSocialLinks";
 
 export function Footer() {
+  const { email, phone, phoneTel, phoneFormatted, config } = useConfig();
+
   return (
     <footer className="border-t border-surface-border bg-card-bg text-foreground relative z-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
@@ -18,22 +21,22 @@ export function Footer() {
             </p>
 
             <div className="pt-2 space-y-2 text-sm">
-              {siteConfig.email && (
+              {email && (
                 <a
-                  href={`mailto:${siteConfig.email}`}
+                  href={`mailto:${email}`}
                   className="flex items-center gap-2.5 text-text-muted hover:text-brand-500 transition-colors font-medium"
                 >
                   <Mail className="h-4 w-4 text-brand-500 dark:text-brand-400" />
-                  <span>{siteConfig.email}</span>
+                  <span>{email}</span>
                 </a>
               )}
-              {siteConfig.phone && (
+              {phone && (
                 <a
-                  href={`tel:${siteConfig.phoneTel}`}
+                  href={`tel:${phoneTel}`}
                   className="flex items-center gap-2.5 text-text-muted hover:text-brand-500 transition-colors font-medium"
                 >
                   <Phone className="h-4 w-4 text-brand-500 dark:text-brand-400" />
-                  <span>{siteConfig.phoneFormatted}</span>
+                  <span>{phoneFormatted}</span>
                 </a>
               )}
             </div>

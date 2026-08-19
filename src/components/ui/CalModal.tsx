@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { X, ExternalLink, Calendar, ShieldCheck, Clock, RefreshCw, AlertCircle, Sparkles, Phone, Mail } from "lucide-react";
 import { siteConfig } from "@/config/site";
+import { useConfig } from "@/components/providers/ConfigProvider";
 import { trackEvent } from "@/lib/analytics";
 
 interface CalModalProps {
@@ -15,13 +16,12 @@ export function CalModal({ isOpen, onClose }: CalModalProps) {
   const [iframeState, setIframeState] = useState<"loading" | "loaded" | "error" | "unavailable">("loading");
   const [retryCount, setRetryCount] = useState(0);
 
+  const { calBookingUrl, calEmbedUrl, phone, phoneFormatted, phoneTel, email } = useConfig();
+
   // Compute clean calLink slug and full URL from dynamic environment configuration
   const { bookingUrl, embedUrl, isConfigured } = useMemo(() => {
-    const envBooking = process.env.NEXT_PUBLIC_CAL_BOOKING_URL || process.env.NEXT_PUBLIC_CALCOM_URL;
-    const envEmbed = process.env.NEXT_PUBLIC_CAL_EMBED_URL;
-
-    const rawBooking = (envBooking || siteConfig.calBookingUrl || "").trim();
-    const rawEmbed = (envEmbed || siteConfig.calEmbedUrl || "").trim();
+    const rawBooking = (calBookingUrl || "").trim();
+    const rawEmbed = (calEmbedUrl || "").trim();
 
     if (!rawBooking && !rawEmbed) {
       return { bookingUrl: "", embedUrl: "", isConfigured: false };
@@ -57,7 +57,7 @@ export function CalModal({ isOpen, onClose }: CalModalProps) {
       embedUrl: embedWithRetry,
       isConfigured: true,
     };
-  }, [retryCount]);
+  }, [calBookingUrl, calEmbedUrl, retryCount]);
 
   // Reset loading state when opened
   useEffect(() => {
