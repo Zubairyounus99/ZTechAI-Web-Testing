@@ -1,11 +1,14 @@
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { industriesData } from "@/data/industries";
 import { blogPosts } from "@/data/blogData";
 import { faqsData } from "@/data/faqs";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || siteConfig.siteUrl;
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
+  const baseUrl = siteConfig.siteUrl;
 
   const content = `# ZTechAI — Comprehensive Knowledge, Telephony Architecture & Technical Documentation
 > Complete documentation for Large Language Models, AI Search Engines, and Perplexity/ChatGPT citations.

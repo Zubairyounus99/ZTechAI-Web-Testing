@@ -1,6 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { Capabilities } from "@/components/sections/Capabilities";
 import { WorkflowVisualizer } from "@/components/sections/WorkflowVisualizer";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
@@ -8,21 +8,28 @@ import { FaqSection } from "@/components/sections/FaqSection";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { PhoneCall } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "AI Voice Agents for US Businesses | ZTechAI Phone Automation",
-  description:
-    "Deploy custom conversational AI voice agents that answer inbound calls on the first ring, qualify caller intent, book appointments on your calendar, and sync with your CRM 24/7.",
-  alternates: { canonical: `${siteConfig.siteUrl}/ai-voice-agents` },
-  openGraph: {
-    title: "AI Voice Agents for US Businesses | ZTechAI Phone Automation",
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `AI Voice Agents for US Businesses | ${config.name} Phone Automation`,
     description:
-      "Deploy custom conversational AI voice agents that answer calls on ring one, qualify leads, and schedule appointments 24/7.",
-    url: `${siteConfig.siteUrl}/ai-voice-agents`,
-    type: "website",
-  },
-};
+      `Deploy custom conversational AI voice agents that answer inbound calls on the first ring, qualify caller intent, book appointments on your calendar, and sync with your CRM 24/7.`,
+    alternates: { canonical: `${config.siteUrl}/ai-voice-agents` },
+    openGraph: {
+      title: `AI Voice Agents for US Businesses | ${config.name} Phone Automation`,
+      description:
+        "Deploy custom conversational AI voice agents that answer calls on ring one, qualify leads, and schedule appointments 24/7.",
+      url: `${config.siteUrl}/ai-voice-agents`,
+      type: "website",
+    },
+  };
+}
 
 export default function AiVoiceAgentsPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const pageUrl = `${siteConfig.siteUrl}/ai-voice-agents`;
 
   const jsonLd = {

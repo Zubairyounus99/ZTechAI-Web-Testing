@@ -1,62 +1,76 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { SiteConfig, getLiveConfig } from "@/config/site";
+import React, { createContext, useContext, useEffect, useMemo } from "react";
+import {
+  SiteConfig,
+  RuntimeEnv,
+  getSiteConfig,
+  getClientRuntimeConfig,
+} from "@/config/site";
 
-export interface ConfigContextType {
+export interface ConfigContextType extends RuntimeEnv {
   config: SiteConfig;
-  email: string;
-  phone: string;
   phoneFormatted: string;
   phoneTel: string;
-  calBookingUrl: string;
-  calEmbedUrl: string;
-  aiCostPerMinute: number;
-  socialLinks: SiteConfig["socialLinks"];
+  email: string;
+  phone: string;
   name: string;
-  siteUrl: string;
   primaryCtaText: string;
   secondaryCtaText: string;
   navLinks: SiteConfig["navLinks"];
   footerLinks: SiteConfig["footerLinks"];
   tagline: string;
   trustStatement: string;
+  headline: string;
+  subheadline: string;
+  legalName: string;
 }
 
 const ConfigContext = createContext<ConfigContextType | null>(null);
 
-export function ConfigProvider({ children }: { children: React.ReactNode }) {
-  const [config, setConfig] = useState<SiteConfig>(() => getLiveConfig());
-
+export function ConfigProvider({
+  initialRuntimeEnv,
+  children,
+}: {
+  initialRuntimeEnv: RuntimeEnv;
+  children: React.ReactNode;
+}) {
   useEffect(() => {
-    // Re-evaluate live configuration on client mount after window.__APP_ENV__ script execution
-    const live = getLiveConfig();
-    if (live && live.calculator) {
-      setConfig(live);
+    const runtimeWindow = window as typeof window & { __APP_ENV__?: RuntimeEnv };
+    runtimeWindow.__APP_ENV__ = initialRuntimeEnv;
+  }, [initialRuntimeEnv]);
+
+  // The server-rendered prop is serialized by the App Router; on the browser it
+  // populates window.__APP_ENV__, our single public runtime configuration source.
+  const value = useMemo<ConfigContextType>(() => {
+    if (typeof window !== "undefined") {
+      const runtimeWindow = window as typeof window & { __APP_ENV__?: RuntimeEnv };
+      // App Router serializes initialRuntimeEnv in the server component payload.
+      // Populate the browser's one public runtime source before reading it.
+      runtimeWindow.__APP_ENV__ ??= initialRuntimeEnv;
     }
-  }, []);
+    const runtimeEnv = getClientRuntimeConfig(initialRuntimeEnv);
+    const fullConfig = getSiteConfig(runtimeEnv);
 
-  const safeConfig = config && config.calculator ? config : getLiveConfig();
-
-  const value: ConfigContextType = {
-    config: safeConfig,
-    email: safeConfig.email || "admin@ztechai.us",
-    phone: safeConfig.phone || "+1 (321) 499-87777",
-    phoneFormatted: safeConfig.phoneFormatted || "+1 (321) 499-87777",
-    phoneTel: safeConfig.phoneTel || "+132149987777",
-    calBookingUrl: safeConfig.calBookingUrl || "https://cal.com/zubair-younus-4tlv0b/ai-voice-agent",
-    calEmbedUrl: safeConfig.calEmbedUrl || "https://app.cal.com/zubair-younus-4tlv0b/ai-voice-agent?embed=true&theme=dark&layout=month_view",
-    aiCostPerMinute: safeConfig.calculator?.aiCostPerMinute ?? 0.30,
-    socialLinks: safeConfig.socialLinks || { linkedin: "", youtube: "", facebook: "", instagram: "", whatsapp: "" },
-    name: safeConfig.name || "ZTechAI",
-    siteUrl: safeConfig.siteUrl || "https://ztechai.us",
-    primaryCtaText: safeConfig.primaryCtaText || "Book Your 15-Minute AI Discovery",
-    secondaryCtaText: safeConfig.secondaryCtaText || "Talk to Our AI",
-    navLinks: safeConfig.navLinks || [],
-    footerLinks: safeConfig.footerLinks || { solutions: [], industries: [], company: [], resources: [], legal: [] },
-    tagline: safeConfig.tagline || "Custom AI Voice Agents for US Businesses",
-    trustStatement: safeConfig.trustStatement || "Built for US businesses that depend on calls, customers, and appointments.",
-  };
+    return {
+      ...runtimeEnv,
+      config: fullConfig,
+      email: runtimeEnv.contactEmail,
+      phone: runtimeEnv.contactPhone,
+      phoneFormatted: runtimeEnv.contactPhone,
+      phoneTel: fullConfig.phoneTel,
+      name: runtimeEnv.siteName,
+      legalName: fullConfig.legalName,
+      tagline: fullConfig.tagline,
+      headline: fullConfig.headline,
+      subheadline: fullConfig.subheadline,
+      trustStatement: fullConfig.trustStatement,
+      primaryCtaText: fullConfig.primaryCtaText,
+      secondaryCtaText: fullConfig.secondaryCtaText,
+      navLinks: fullConfig.navLinks,
+      footerLinks: fullConfig.footerLinks,
+    };
+  }, [initialRuntimeEnv]);
 
   return <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>;
 }
@@ -64,25 +78,25 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
 export function useConfig(): ConfigContextType {
   const context = useContext(ConfigContext);
   if (!context) {
-    const live = getLiveConfig();
+    const runtimeEnv = getClientRuntimeConfig();
+    const fullConfig = getSiteConfig(runtimeEnv);
     return {
-      config: live,
-      email: live.email || "admin@ztechai.us",
-      phone: live.phone || "+1 (321) 499-87777",
-      phoneFormatted: live.phoneFormatted || "+1 (321) 499-87777",
-      phoneTel: live.phoneTel || "+132149987777",
-      calBookingUrl: live.calBookingUrl || "https://cal.com/zubair-younus-4tlv0b/ai-voice-agent",
-      calEmbedUrl: live.calEmbedUrl || "https://app.cal.com/zubair-younus-4tlv0b/ai-voice-agent?embed=true&theme=dark&layout=month_view",
-      aiCostPerMinute: live.calculator?.aiCostPerMinute ?? 0.30,
-      socialLinks: live.socialLinks || { linkedin: "", youtube: "", facebook: "", instagram: "", whatsapp: "" },
-      name: live.name || "ZTechAI",
-      siteUrl: live.siteUrl || "https://ztechai.us",
-      primaryCtaText: live.primaryCtaText || "Book Your 15-Minute AI Discovery",
-      secondaryCtaText: live.secondaryCtaText || "Talk to Our AI",
-      navLinks: live.navLinks || [],
-      footerLinks: live.footerLinks || { solutions: [], industries: [], company: [], resources: [], legal: [] },
-      tagline: live.tagline || "Custom AI Voice Agents for US Businesses",
-      trustStatement: live.trustStatement || "Built for US businesses that depend on calls, customers, and appointments.",
+      ...runtimeEnv,
+      config: fullConfig,
+      email: runtimeEnv.contactEmail,
+      phone: runtimeEnv.contactPhone,
+      phoneFormatted: runtimeEnv.contactPhone,
+      phoneTel: fullConfig.phoneTel,
+      name: runtimeEnv.siteName,
+      legalName: fullConfig.legalName,
+      tagline: fullConfig.tagline,
+      headline: fullConfig.headline,
+      subheadline: fullConfig.subheadline,
+      trustStatement: fullConfig.trustStatement,
+      primaryCtaText: fullConfig.primaryCtaText,
+      secondaryCtaText: fullConfig.secondaryCtaText,
+      navLinks: fullConfig.navLinks,
+      footerLinks: fullConfig.footerLinks,
     };
   }
   return context;

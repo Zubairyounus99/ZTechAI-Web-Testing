@@ -1,10 +1,12 @@
 import { MetadataRoute } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig } from "@/config/site";
 import { industriesData } from "@/data/industries";
 import { blogPosts } from "@/data/blogData";
 
+export const dynamic = "force-dynamic";
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || siteConfig.siteUrl;
+  const baseUrl = getServerRuntimeConfig().siteUrl;
   const currentDate = new Date().toISOString();
 
   // 1. Core public marketing pages

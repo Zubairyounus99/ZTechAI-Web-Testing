@@ -2,7 +2,7 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { industriesData } from "@/data/industries";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
 import { FaqSection } from "@/components/sections/FaqSection";
 import { CheckCircle2, Clock, Sparkles } from "lucide-react";
@@ -10,6 +10,9 @@ import { CheckCircle2, Clock, Sparkles } from "lucide-react";
 interface Props {
   params: { slug: string };
 }
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export function generateStaticParams() {
   return industriesData.map((ind) => ({
@@ -21,8 +24,9 @@ export function generateMetadata({ params }: Props): Metadata {
   const industry = industriesData.find((ind) => ind.slug === params.slug);
   if (!industry) return {};
 
-  const pageUrl = `${siteConfig.siteUrl}/industries/${industry.slug}`;
-  const title = `AI Receptionist for ${industry.name} | ZTechAI Voice Automation`;
+  const config = getSiteConfig(getServerRuntimeConfig());
+  const pageUrl = `${config.siteUrl}/industries/${industry.slug}`;
+  const title = `AI Receptionist for ${industry.name} | ${config.name} Voice Automation`;
   const description = `Automate phone answering, emergency triage, and appointment booking for ${industry.name.toLowerCase()} with custom AI voice agents. Compatible with ${industry.systemsConnected.slice(0, 3).join(", ")}.`;
 
   return {
@@ -36,7 +40,7 @@ export function generateMetadata({ params }: Props): Metadata {
       description,
       url: pageUrl,
       type: "website",
-      siteName: "ZTechAI",
+      siteName: config.name,
       images: [
         {
           url: "/icon.svg",
@@ -56,6 +60,7 @@ export function generateMetadata({ params }: Props): Metadata {
 }
 
 export default function IndustryPage({ params }: Props) {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const industry = industriesData.find((ind) => ind.slug === params.slug);
 
   if (!industry) {

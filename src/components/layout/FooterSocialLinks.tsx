@@ -1,5 +1,4 @@
 import React from "react";
-import { siteConfig } from "@/config/site";
 import { useConfig } from "@/components/providers/ConfigProvider";
 import { Linkedin, Youtube, Instagram, Facebook, MessageCircle } from "lucide-react";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { siteConfig } from "@/config/site";
+import { useConfig } from "@/components/providers/ConfigProvider";
 import { CalModal } from "@/components/ui/CalModal";
 import { trackEvent } from "@/lib/analytics";
 import {
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 export function MissedCallStory() {
+  const { primaryCtaText } = useConfig();
   const [activeTab, setActiveTab] = useState<"without" | "with">("without");
   const [calOpen, setCalOpen] = useState(false);
 
@@ -228,7 +229,7 @@ export function MissedCallStory() {
             className="inline-flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-accent-600 px-8 py-4 text-sm font-semibold text-white shadow-xl shadow-brand-500/25 hover:scale-[1.02] transition-all"
           >
             <Sparkles className="h-4 w-4" />
-            <span>Never Miss Another Opportunity — {siteConfig.primaryCtaText}</span>
+            <span>Never Miss Another Opportunity — {primaryCtaText}</span>
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>

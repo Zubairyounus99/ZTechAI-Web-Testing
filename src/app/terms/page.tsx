@@ -1,18 +1,25 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 
-export const metadata: Metadata = {
-  title: "Terms & Conditions | ZTechAI",
-  description: "ZTechAI Terms of Service and Master Service Agreement guidelines.",
-  alternates: { canonical: `${siteConfig.siteUrl}/terms` },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `Terms & Conditions | ${config.name}`,
+    description: `${config.name} Terms of Service and Master Service Agreement guidelines.`,
+    alternates: { canonical: `${config.siteUrl}/terms` },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 export default function TermsPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   return (
     <div className="pt-32 pb-24 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 bg-background">
       <div className="space-y-4 mb-10 pb-6 border-b border-surface-border">

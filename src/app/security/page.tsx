@@ -1,25 +1,32 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { TrustSecurity } from "@/components/sections/TrustSecurity";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
 import { ShieldCheck } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Security, Privacy & Data Architecture — ZTechAI",
-  description:
-    "Learn about ZTechAI's security standards, customer data ownership, encryption protocols, deterministic guardrails, and retention policies.",
-  alternates: { canonical: `${siteConfig.siteUrl}/security` },
-  openGraph: {
-    title: "Security, Privacy & Data Architecture — ZTechAI",
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `Security, Privacy & Data Architecture — ${config.name}`,
     description:
-      "Enterprise security standards, TLS 1.3 encryption, zero model training on customer data, and deterministic guardrails.",
-    url: `${siteConfig.siteUrl}/security`,
-    type: "website",
-  },
-};
+      `Learn about ${config.name}'s security standards, customer data ownership, encryption protocols, deterministic guardrails, and retention policies.`,
+    alternates: { canonical: `${config.siteUrl}/security` },
+    openGraph: {
+      title: `Security, Privacy & Data Architecture — ${config.name}`,
+      description:
+        "Enterprise security standards, TLS 1.3 encryption, zero model training on customer data, and deterministic guardrails.",
+      url: `${config.siteUrl}/security`,
+      type: "website",
+    },
+  };
+}
 
 export default function SecurityPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const pageUrl = `${siteConfig.siteUrl}/security`;
 
   const jsonLd = {

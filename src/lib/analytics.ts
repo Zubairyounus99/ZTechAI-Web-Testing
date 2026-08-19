@@ -47,7 +47,7 @@ export function trackEvent(
   if (typeof (window as unknown as { gtag?: (type: string, name: string, params?: object) => void }).gtag === "function") {
     (window as unknown as { gtag: (type: string, name: string, params?: object) => void }).gtag("event", event, {
       ...properties,
-      send_to: "G-H57HRPFNJ9",
+      send_to: (window as unknown as { __APP_ENV__?: { gaId?: string } }).__APP_ENV__?.gaId,
     });
   }
 

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { X, ExternalLink, Calendar, ShieldCheck, Clock, RefreshCw, AlertCircle, Sparkles, Phone, Mail } from "lucide-react";
-import { siteConfig } from "@/config/site";
 import { useConfig } from "@/components/providers/ConfigProvider";
 import { trackEvent } from "@/lib/analytics";
 
@@ -192,22 +191,22 @@ export function CalModal({ isOpen, onClose }: CalModalProps) {
                 </p>
               </div>
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                {siteConfig.phone && (
+                {phone && (
                   <a
-                    href={`tel:${siteConfig.phoneTel}`}
+                    href={`tel:${phoneTel}`}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-brand-500 to-accent-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-brand-500/25 transition-all"
                   >
                     <Phone className="h-3.5 w-3.5" />
-                    <span>Call {siteConfig.phoneFormatted}</span>
+                    <span>Call {phoneFormatted}</span>
                   </a>
                 )}
-                {siteConfig.email && (
+                {email && (
                   <a
-                    href={`mailto:${siteConfig.email}`}
+                    href={`mailto:${email}`}
                     className="inline-flex items-center gap-1.5 rounded-xl border border-surface-border bg-surface-muted px-4 py-2 text-xs font-semibold text-foreground hover:bg-surface-elevated transition-all"
                   >
                     <Mail className="h-3.5 w-3.5" />
-                    <span>Email {siteConfig.email}</span>
+                    <span>Email {email}</span>
                   </a>
                 )}
               </div>

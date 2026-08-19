@@ -1,27 +1,34 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { AiEmployeeConcept } from "@/components/sections/AiEmployeeConcept";
 import { TrustSecurity } from "@/components/sections/TrustSecurity";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Building2, Target, Users, ShieldCheck } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "About ZTechAI — AI Voice Automation for US Businesses",
-  description:
-    "Learn about ZTechAI's mission to eliminate missed phone calls and empower US local service businesses with reliable custom AI voice agents and 24/7 receptionists.",
-  alternates: { canonical: `${siteConfig.siteUrl}/about` },
-  openGraph: {
-    title: "About ZTechAI — AI Voice Automation for US Businesses",
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `About ${config.name} — AI Voice Automation for US Businesses`,
     description:
-      "Learn about ZTechAI's mission to eliminate missed calls and empower local businesses with custom conversational AI.",
-    url: `${siteConfig.siteUrl}/about`,
-    type: "website",
-  },
-};
+      `Learn about ${config.name}'s mission to eliminate missed phone calls and empower US local service businesses with reliable custom AI voice agents and 24/7 receptionists.`,
+    alternates: { canonical: `${config.siteUrl}/about` },
+    openGraph: {
+      title: `About ${config.name} — AI Voice Automation for US Businesses`,
+      description:
+        `Learn about ${config.name}'s mission to eliminate missed calls and empower local businesses with custom conversational AI.`,
+      url: `${config.siteUrl}/about`,
+      type: "website",
+    },
+  };
+}
 
 export default function AboutPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const pageUrl = `${siteConfig.siteUrl}/about`;
 
   const jsonLd = {

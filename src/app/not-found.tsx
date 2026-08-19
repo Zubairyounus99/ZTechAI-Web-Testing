@@ -1,9 +1,12 @@
 import React from "react";
 import Link from "next/link";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { Radio, Home, Sparkles, Phone, Calendar } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default function NotFound() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-28 pb-16 bg-background">
       <div className="relative max-w-2xl w-full text-center space-y-8">

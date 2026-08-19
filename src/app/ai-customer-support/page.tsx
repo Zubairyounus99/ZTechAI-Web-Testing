@@ -1,6 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { Capabilities } from "@/components/sections/Capabilities";
 import { AiEmployeeConcept } from "@/components/sections/AiEmployeeConcept";
 import { CostComparison } from "@/components/sections/CostComparison";
@@ -9,21 +9,28 @@ import { FaqSection } from "@/components/sections/FaqSection";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Headphones } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "AI Customer Support & FAQ Deflection over Phone | ZTechAI",
-  description:
-    "Instantly deflect repetitive customer questions regarding business hours, pricing, policies, locations, and prep instructions with zero hold time.",
-  alternates: { canonical: `${siteConfig.siteUrl}/ai-customer-support` },
-  openGraph: {
-    title: "AI Customer Support & FAQ Deflection over Phone | ZTechAI",
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `AI Customer Support & FAQ Deflection over Phone | ${config.name}`,
     description:
-      "Instant answers to caller FAQs without human staff intervention. Free up your front desk for complex client care.",
-    url: `${siteConfig.siteUrl}/ai-customer-support`,
-    type: "website",
-  },
-};
+      `Instantly deflect repetitive customer questions regarding business hours, pricing, policies, locations, and prep instructions with zero hold time.`,
+    alternates: { canonical: `${config.siteUrl}/ai-customer-support` },
+    openGraph: {
+      title: `AI Customer Support & FAQ Deflection over Phone | ${config.name}`,
+      description:
+        "Instant answers to caller FAQs without human staff intervention. Free up your front desk for complex client care.",
+      url: `${config.siteUrl}/ai-customer-support`,
+      type: "website",
+    },
+  };
+}
 
 export default function AiCustomerSupportPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const pageUrl = `${siteConfig.siteUrl}/ai-customer-support`;
 
   const jsonLd = {

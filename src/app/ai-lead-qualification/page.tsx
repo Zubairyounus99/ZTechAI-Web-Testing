@@ -1,6 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { Capabilities } from "@/components/sections/Capabilities";
 import { WorkflowVisualizer } from "@/components/sections/WorkflowVisualizer";
 import { BusinessImpact } from "@/components/sections/BusinessImpact";
@@ -9,21 +9,28 @@ import { FaqSection } from "@/components/sections/FaqSection";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Filter } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Inbound AI Lead Qualification & Caller Triage | ZTechAI",
-  description:
-    "Triage caller urgency, verify service areas, qualify project budgets, and route high-value leads directly to your top technicians or sales reps.",
-  alternates: { canonical: `${siteConfig.siteUrl}/ai-lead-qualification` },
-  openGraph: {
-    title: "Inbound AI Lead Qualification & Caller Triage | ZTechAI",
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `Inbound AI Lead Qualification & Caller Triage | ${config.name}`,
     description:
-      "Filter unqualified inquiries, verify service zip codes, and escalate priority emergencies automatically.",
-    url: `${siteConfig.siteUrl}/ai-lead-qualification`,
-    type: "website",
-  },
-};
+      `Triage caller urgency, verify service areas, qualify project budgets, and route high-value leads directly to your top technicians or sales reps.`,
+    alternates: { canonical: `${config.siteUrl}/ai-lead-qualification` },
+    openGraph: {
+      title: `Inbound AI Lead Qualification & Caller Triage | ${config.name}`,
+      description:
+        "Filter unqualified inquiries, verify service zip codes, and escalate priority emergencies automatically.",
+      url: `${config.siteUrl}/ai-lead-qualification`,
+      type: "website",
+    },
+  };
+}
 
 export default function AiLeadQualificationPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const pageUrl = `${siteConfig.siteUrl}/ai-lead-qualification`;
 
   const jsonLd = {

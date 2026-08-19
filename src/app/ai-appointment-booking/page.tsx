@@ -1,6 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { Capabilities } from "@/components/sections/Capabilities";
 import { WorkflowVisualizer } from "@/components/sections/WorkflowVisualizer";
 import { Integrations } from "@/components/sections/Integrations";
@@ -9,21 +9,28 @@ import { FaqSection } from "@/components/sections/FaqSection";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { CalendarCheck } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "AI Appointment Booking & Scheduling Over the Phone | ZTechAI",
-  description:
-    "Automate inbound appointment booking with conversational AI. Real-time calendar lookup, zero double-bookings, automated SMS confirmations, and direct CRM sync.",
-  alternates: { canonical: `${siteConfig.siteUrl}/ai-appointment-booking` },
-  openGraph: {
-    title: "AI Appointment Booking & Scheduling Over the Phone | ZTechAI",
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `AI Appointment Booking & Scheduling Over the Phone | ${config.name}`,
     description:
-      "Turn phone calls into confirmed calendar bookings 24/7. Real-time calendar verification and instant SMS follow-ups.",
-    url: `${siteConfig.siteUrl}/ai-appointment-booking`,
-    type: "website",
-  },
-};
+      `Automate inbound appointment booking with conversational AI. Real-time calendar lookup, zero double-bookings, automated SMS confirmations, and direct CRM sync.`,
+    alternates: { canonical: `${config.siteUrl}/ai-appointment-booking` },
+    openGraph: {
+      title: `AI Appointment Booking & Scheduling Over the Phone | ${config.name}`,
+      description:
+        "Turn phone calls into confirmed calendar bookings 24/7. Real-time calendar verification and instant SMS follow-ups.",
+      url: `${config.siteUrl}/ai-appointment-booking`,
+      type: "website",
+    },
+  };
+}
 
 export default function AiAppointmentBookingPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const pageUrl = `${siteConfig.siteUrl}/ai-appointment-booking`;
 
   const jsonLd = {

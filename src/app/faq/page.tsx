@@ -1,25 +1,31 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { faqsData } from "@/data/faqs";
 import { FaqSection } from "@/components/sections/FaqSection";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { HelpCircle } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Frequently Asked Questions — AI Voice Agents & Phone Automation | ZTechAI",
-  description:
-    "Explore authoritative answers to 24+ common questions regarding AI voice agent capabilities, setup timelines, phone forwarding, calendar integrations, and pricing for US businesses.",
-  alternates: { canonical: `${siteConfig.siteUrl}/faq` },
-  openGraph: {
-    title: "Frequently Asked Questions — ZTechAI Voice Automation",
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `Frequently Asked Questions — AI Voice Agents & Phone Automation | ${config.name}`,
     description:
-      "Explore answers to 24+ common questions regarding AI voice agent capabilities, setup timelines, phone forwarding, calendar integrations, and pricing.",
-    url: `${siteConfig.siteUrl}/faq`,
-    type: "website",
-  },
-};
+      `Explore authoritative answers to 24+ common questions regarding AI voice agent capabilities, setup timelines, phone forwarding, calendar integrations, and pricing for US businesses.`,
+    alternates: { canonical: `${config.siteUrl}/faq` },
+    openGraph: {
+      title: `Frequently Asked Questions — ${config.name} Voice Automation`,
+      description:
+        "Explore answers to 24+ common questions regarding AI voice agent capabilities, setup timelines, phone forwarding, calendar integrations, and pricing.",
+      url: `${config.siteUrl}/faq`,
+      type: "website",
+    },
+  };
+}
 
 export default function FaqPage() {
   // Generate valid FAQPage Schema.org JSON-LD

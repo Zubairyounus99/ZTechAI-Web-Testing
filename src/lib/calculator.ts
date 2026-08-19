@@ -93,7 +93,7 @@ export function calculateROI(
   }
 
   // Active rate evaluation
-  const activeRate = typeof customRate === "number" && customRate > 0 ? customRate : (CALCULATOR_CONFIG.AI_COST_PER_MINUTE || 0.30);
+  const activeRate = typeof customRate === "number" && customRate > 0 ? customRate : 0;
 
   // Workload calculations
   const monthlyCalls = Math.round(rawCalls);

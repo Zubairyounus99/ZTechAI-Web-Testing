@@ -133,19 +133,11 @@ runTest("Zero Hardcoded Inappropriate Contact Strings in Source", () => {
   }
 });
 
-// Test 5: Dockerfile Runtime Runner Environment Propagation
-runTest("Dockerfile Runner Stage Environment Variable Propagation", () => {
+// Test 5: Dockerfile must not bake runtime business configuration into an image.
+runTest("Dockerfile keeps business configuration runtime-only", () => {
   const dockerfile = fs.readFileSync(path.join(__dirname, "../Dockerfile"), "utf-8");
-  const runnerSection = dockerfile.split("FROM base AS runner")[1];
-  assert(runnerSection, "Dockerfile missing runner stage");
-  assert(runnerSection.includes("ARG NEXT_PUBLIC_CONTACT_EMAIL"), "runner stage missing ARG NEXT_PUBLIC_CONTACT_EMAIL");
-  assert(runnerSection.includes("ENV NEXT_PUBLIC_CONTACT_EMAIL=$NEXT_PUBLIC_CONTACT_EMAIL"), "runner stage missing ENV NEXT_PUBLIC_CONTACT_EMAIL");
-  assert(runnerSection.includes("ARG NEXT_PUBLIC_CONTACT_PHONE"), "runner stage missing ARG NEXT_PUBLIC_CONTACT_PHONE");
-  assert(runnerSection.includes("ENV NEXT_PUBLIC_CONTACT_PHONE=$NEXT_PUBLIC_CONTACT_PHONE"), "runner stage missing ENV NEXT_PUBLIC_CONTACT_PHONE");
-  assert(runnerSection.includes("ARG NEXT_PUBLIC_CAL_BOOKING_URL"), "runner stage missing ARG NEXT_PUBLIC_CAL_BOOKING_URL");
-  assert(runnerSection.includes("ENV NEXT_PUBLIC_CAL_BOOKING_URL=$NEXT_PUBLIC_CAL_BOOKING_URL"), "runner stage missing ENV NEXT_PUBLIC_CAL_BOOKING_URL");
-  assert(runnerSection.includes("ARG NEXT_PUBLIC_AI_COST_PER_MINUTE"), "runner stage missing ARG NEXT_PUBLIC_AI_COST_PER_MINUTE");
-  assert(runnerSection.includes("ENV NEXT_PUBLIC_AI_COST_PER_MINUTE=$NEXT_PUBLIC_AI_COST_PER_MINUTE"), "runner stage missing ENV NEXT_PUBLIC_AI_COST_PER_MINUTE");
+  assert(!/^(ARG|ENV) NEXT_PUBLIC_(CONTACT|CAL_|AI_COST)/m.test(dockerfile), "Dockerfile bakes runtime business configuration");
+  assert(dockerfile.includes("Business configuration is deliberately not declared"), "Dockerfile runtime configuration contract missing");
 });
 
 // Test 6: Runtime Configuration Validation

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { siteConfig } from "@/config/site";
 import { useConfig } from "@/components/providers/ConfigProvider";
 import { CalModal } from "@/components/ui/CalModal";
 import { AudioWaveform } from "@/components/ui/AudioWaveform";
@@ -20,7 +19,7 @@ import {
 } from "lucide-react";
 
 export function Hero() {
-  const { name, primaryCtaText, secondaryCtaText } = useConfig();
+  const { primaryCtaText, secondaryCtaText, trustStatement, subheadline } = useConfig();
   const [calOpen, setCalOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
 
@@ -59,7 +58,7 @@ export function Hero() {
             <div className="inline-flex items-center gap-2 rounded-full border border-surface-border bg-surface-muted px-4 py-1.5 backdrop-blur-md shadow-sm">
               <span className="flex h-2 w-2 rounded-full bg-brand-500 animate-pulse" />
               <span className="text-xs font-semibold text-text-muted">
-                {siteConfig.trustStatement}
+                {trustStatement}
               </span>
             </div>
 
@@ -73,7 +72,7 @@ export function Hero() {
 
             {/* Supporting Copy */}
             <p className="text-base sm:text-lg md:text-xl text-text-muted leading-relaxed max-w-2xl mx-auto lg:mx-0 font-normal">
-              {siteConfig.subheadline}
+              {subheadline}
             </p>
 
             {/* Primary & Secondary CTAs */}
@@ -84,7 +83,7 @@ export function Hero() {
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-brand-500 via-brand-600 to-accent-600 px-7 py-4 text-base font-semibold text-white shadow-xl shadow-brand-500/25 transition-all hover:scale-[1.02] hover:shadow-brand-500/40 active:scale-[0.98]"
                 >
                   <Calendar className="h-5 w-5" />
-                  <span>{siteConfig.primaryCtaText}</span>
+                  <span>{primaryCtaText}</span>
                   <ArrowRight className="h-4 w-4" />
                 </button>
 
@@ -93,7 +92,7 @@ export function Hero() {
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl border border-surface-border bg-surface-muted px-6 py-4 text-base font-semibold text-foreground backdrop-blur-md transition-all hover:border-brand-500/40 hover:bg-surface-elevated"
                 >
                   <Sparkles className="h-5 w-5 text-brand-500 dark:text-brand-400" />
-                  <span>{siteConfig.secondaryCtaText}</span>
+                  <span>{secondaryCtaText}</span>
                 </button>
               </div>
               <p className="text-xs text-text-muted font-medium flex items-center justify-center lg:justify-start gap-2">

@@ -1,27 +1,19 @@
 // ==========================================================
-// ZTechAI — Central Dynamic Runtime Configuration Layer
-// Single source of truth across Server (SSR) and Client (Hydration)
+// ZTechAI — Enterprise Runtime Configuration Engine
+// Pure Separation of Server (process.env) and Client (window.__APP_ENV__)
 // ==========================================================
 
-export interface SiteConfig {
-  name: string;
-  legalName: string;
-  domain: string;
+export interface RuntimeEnv {
+  siteName: string;
   siteUrl: string;
-  description: string;
-  email: string;
-  phone: string;
-  phoneFormatted: string;
-  phoneTel: string;
+  siteDescription: string;
+  contactEmail: string;
+  contactPhone: string;
   calBookingUrl: string;
   calEmbedUrl: string;
-  aiDemoUrl: string;
-  tagline: string;
-  headline: string;
-  subheadline: string;
-  trustStatement: string;
-  primaryCtaText: string;
-  secondaryCtaText: string;
+  aiCostPerMinute: number;
+  gaId: string;
+  gscVerification: string;
   socialLinks: {
     linkedin: string;
     youtube: string;
@@ -29,6 +21,23 @@ export interface SiteConfig {
     instagram: string;
     whatsapp: string;
   };
+}
+
+export interface SiteConfig extends RuntimeEnv {
+  legalName: string;
+  domain: string;
+  email: string;
+  phone: string;
+  phoneFormatted: string;
+  phoneTel: string;
+  name: string;
+  description: string;
+  tagline: string;
+  headline: string;
+  subheadline: string;
+  trustStatement: string;
+  primaryCtaText: string;
+  secondaryCtaText: string;
   calculator: {
     aiCostPerMinute: number;
     maxProductiveMinutesPerEmployeePerMonth: number;
@@ -54,8 +63,53 @@ export interface ConfigValidationResult {
 }
 
 /**
- * Normalizes any phone string into a clean, RFC-compliant tel: link.
- * Example: "+1 (321) 499-87777" -> "+132149987777"
+ * Isolated Development Defaults
+ * Used ONLY when variables are completely absent in local development.
+ * In production, validateRuntimeConfig() will warn if any required setting is missing.
+ */
+export const DEVELOPMENT_DEFAULTS: RuntimeEnv = {
+  siteName: "ZTechAI",
+  siteUrl: "https://ztechai.us",
+  siteDescription:
+    "ZTechAI helps US businesses automate repetitive customer communication and operational tasks with custom AI voice agents that work 24/7.",
+  contactEmail: "info@ztechai.us",
+  contactPhone: "+1 (321) 499-8752",
+  calBookingUrl: "https://cal.com/ztechai/discovery",
+  calEmbedUrl: "",
+  aiCostPerMinute: 0.20,
+  gaId: "",
+  gscVerification: "",
+  socialLinks: {
+    linkedin: "https://linkedin.com/company/ztechai",
+    youtube: "",
+    facebook: "",
+    instagram: "",
+    whatsapp: "",
+  },
+};
+
+/**
+ * Business configuration is intentionally absent in production when Dokploy has
+ * not supplied it.  Falling back to an old real phone number, calendar, or
+ * price would make a bad deployment look healthy and is exactly the stale
+ * configuration failure this module is designed to prevent.
+ */
+function defaultsForCurrentEnvironment(): RuntimeEnv {
+  if (process.env.NODE_ENV !== "production") return DEVELOPMENT_DEFAULTS;
+
+  return {
+    ...DEVELOPMENT_DEFAULTS,
+    contactEmail: "",
+    contactPhone: "",
+    calBookingUrl: "",
+    calEmbedUrl: "",
+    aiCostPerMinute: 0,
+    gaId: "",
+  };
+}
+
+/**
+ * Normalizes any phone string into a clean RFC-compliant tel: link.
  */
 export function normalizeTel(phone: string): string {
   if (!phone || typeof phone !== "string") return "";
@@ -65,62 +119,146 @@ export function normalizeTel(phone: string): string {
   return hasPlus ? `+${digits}` : digits;
 }
 
-// Safely retrieve live runtime environment variables from Window (client) or Process (server)
-export function getRuntimeEnv(key: string, fallback: string = ""): string {
-  if (typeof window !== "undefined") {
-    const winEnv = (window as unknown as { __APP_ENV__?: Record<string, string> }).__APP_ENV__;
-    if (winEnv && typeof winEnv[key] === "string" && winEnv[key].trim().length > 0) {
-      return winEnv[key].trim();
-    }
+/**
+ * Dynamically computes a Cal.com embed URL from a booking URL if embed URL is empty
+ */
+export function deriveCalEmbedUrl(bookingUrl: string, customEmbedUrl: string = ""): string {
+  if (customEmbedUrl && customEmbedUrl.trim().length > 0) {
+    return customEmbedUrl.trim();
   }
-  const procVal = process.env[key];
-  if (typeof procVal === "string" && procVal.trim().length > 0) {
-    return procVal.trim();
+  if (!bookingUrl || bookingUrl.trim().length === 0) {
+    return "";
   }
-  return fallback;
-}
-
-export function getLiveConfig(): SiteConfig {
-  const name = getRuntimeEnv("NEXT_PUBLIC_SITE_NAME", "ZTechAI");
-  const siteUrl = getRuntimeEnv("NEXT_PUBLIC_SITE_URL", "https://ztechai.us");
-  const email = getRuntimeEnv("NEXT_PUBLIC_CONTACT_EMAIL", "admin@ztechai.us");
-  const phone = getRuntimeEnv("NEXT_PUBLIC_CONTACT_PHONE", "+1 (321) 499-87777");
-
-  const bookingUrl =
-    getRuntimeEnv("NEXT_PUBLIC_CAL_BOOKING_URL") ||
-    getRuntimeEnv("NEXT_PUBLIC_CALCOM_URL") ||
-    "https://cal.com/zubair-younus-4tlv0b/ai-voice-agent";
-
-  // If booking URL changed, compute embed URL dynamically
   const slug = bookingUrl
+    .trim()
     .replace(/^https?:\/\/(app\.)?cal\.com\//, "")
     .replace(/\?.*$/, "")
     .trim();
+  return slug ? `https://app.cal.com/${slug}?embed=true&theme=dark&layout=month_view` : "";
+}
+
+/**
+ * Server-only runtime configuration reader
+ * Evaluates live process.env on every call (never cached across requests)
+ */
+export function getServerRuntimeConfig(): RuntimeEnv {
+  // Do not use process.env.NEXT_PUBLIC_* property access here. Next.js replaces
+  // statically analyzable public keys at build time, even in server modules.
+  // Bracket lookup preserves the current container environment at request time.
+  const read = (name: string) => process.env[name]?.trim();
+  const defaults = defaultsForCurrentEnvironment();
+
+  const bookingUrl =
+    read("NEXT_PUBLIC_CAL_BOOKING_URL") ||
+    read("CAL_BOOKING_URL") ||
+    read("NEXT_PUBLIC_CALCOM_URL") ||
+    defaults.calBookingUrl;
 
   const embedUrl =
-    getRuntimeEnv("NEXT_PUBLIC_CAL_EMBED_URL") ||
-    `https://app.cal.com/${slug || "zubair-younus-4tlv0b/ai-voice-agent"}?embed=true&theme=dark&layout=month_view`;
+    read("NEXT_PUBLIC_CAL_EMBED_URL") ||
+    read("CAL_EMBED_URL") ||
+    deriveCalEmbedUrl(bookingUrl, defaults.calEmbedUrl);
 
-  const rawCost = getRuntimeEnv("NEXT_PUBLIC_AI_COST_PER_MINUTE", getRuntimeEnv("AI_COST_PER_MINUTE", "0.30"));
+  const rawCost = read("NEXT_PUBLIC_AI_COST_PER_MINUTE") || read("AI_COST_PER_MINUTE");
   const parsedCost = Number(rawCost);
-  const aiCostPerMinute = isNaN(parsedCost) || parsedCost <= 0 ? 0.30 : parsedCost;
+  const aiCostPerMinute = !isNaN(parsedCost) && parsedCost > 0 ? parsedCost : defaults.aiCostPerMinute;
 
   return {
+    siteName: read("NEXT_PUBLIC_SITE_NAME") || read("SITE_NAME") || defaults.siteName,
+    siteUrl: read("NEXT_PUBLIC_SITE_URL") || read("SITE_URL") || defaults.siteUrl,
+    siteDescription:
+      read("NEXT_PUBLIC_SITE_DESCRIPTION") ||
+      read("SITE_DESCRIPTION") ||
+      defaults.siteDescription,
+    contactEmail: read("NEXT_PUBLIC_CONTACT_EMAIL") || read("CONTACT_EMAIL") || defaults.contactEmail,
+    contactPhone: read("NEXT_PUBLIC_CONTACT_PHONE") || read("CONTACT_PHONE") || defaults.contactPhone,
+    calBookingUrl: bookingUrl,
+    calEmbedUrl: embedUrl,
+    aiCostPerMinute,
+    gaId: read("NEXT_PUBLIC_GA_ID") || read("GA_ID") || "",
+    gscVerification: read("NEXT_PUBLIC_GSC_VERIFICATION") || read("GSC_VERIFICATION") || "",
+    socialLinks: {
+      linkedin:
+        read("NEXT_PUBLIC_LINKEDIN_URL") !== undefined
+          ? read("NEXT_PUBLIC_LINKEDIN_URL") || ""
+          : defaults.socialLinks.linkedin,
+      youtube: read("NEXT_PUBLIC_YOUTUBE_URL") || "",
+      facebook: read("NEXT_PUBLIC_FACEBOOK_URL") || "",
+      instagram: read("NEXT_PUBLIC_INSTAGRAM_URL") || "",
+      whatsapp: read("NEXT_PUBLIC_WHATSAPP_URL") || "",
+    },
+  };
+}
+
+/**
+ * Client-only runtime configuration reader
+ * Synchronously reads window.__APP_ENV__ populated by the server layout
+ */
+export function getClientRuntimeConfig(fallback?: RuntimeEnv): RuntimeEnv {
+  if (typeof window !== "undefined") {
+    const winEnv = (window as unknown as { __APP_ENV__?: Partial<RuntimeEnv> }).__APP_ENV__;
+    if (winEnv && typeof winEnv === "object") {
+      const defaults = fallback || DEVELOPMENT_DEFAULTS;
+      const bookingUrl = winEnv.calBookingUrl || defaults.calBookingUrl;
+      const embedUrl = winEnv.calEmbedUrl || deriveCalEmbedUrl(bookingUrl, "");
+      const parsedCost = Number(winEnv.aiCostPerMinute);
+      const aiCostPerMinute = !isNaN(parsedCost) && parsedCost > 0 ? parsedCost : defaults.aiCostPerMinute;
+
+      return {
+        siteName: winEnv.siteName || defaults.siteName,
+        siteUrl: winEnv.siteUrl || defaults.siteUrl,
+        siteDescription: winEnv.siteDescription || defaults.siteDescription,
+        contactEmail: winEnv.contactEmail || defaults.contactEmail,
+        contactPhone: winEnv.contactPhone || defaults.contactPhone,
+        calBookingUrl: bookingUrl,
+        calEmbedUrl: embedUrl,
+        aiCostPerMinute,
+        gaId: winEnv.gaId || "",
+        gscVerification: winEnv.gscVerification || "",
+        socialLinks: {
+          linkedin: winEnv.socialLinks?.linkedin ?? defaults.socialLinks.linkedin,
+          youtube: winEnv.socialLinks?.youtube ?? "",
+          facebook: winEnv.socialLinks?.facebook ?? "",
+          instagram: winEnv.socialLinks?.instagram ?? "",
+          whatsapp: winEnv.socialLinks?.whatsapp ?? "",
+        },
+      };
+    }
+  }
+  return fallback || DEVELOPMENT_DEFAULTS;
+}
+
+/**
+ * Environment-aware runtime configuration getter
+ */
+export function getRuntimeConfig(): RuntimeEnv {
+  if (typeof window !== "undefined") {
+    return getClientRuntimeConfig();
+  }
+  return getServerRuntimeConfig();
+}
+
+export const getRuntimeEnv = getRuntimeConfig;
+
+/**
+ * Converts a RuntimeEnv into the complete, structured SiteConfig
+ */
+export function getSiteConfig(env: RuntimeEnv = getRuntimeConfig()): SiteConfig {
+  const phone = env.contactPhone;
+  const phoneTel = normalizeTel(phone);
+  const email = env.contactEmail;
+  const name = env.siteName;
+
+  return {
+    ...env,
     name,
     legalName: `${name} Inc.`,
-    domain: "ztechai.us",
-    siteUrl,
-    description: getRuntimeEnv(
-      "NEXT_PUBLIC_SITE_DESCRIPTION",
-      "ZTechAI helps US businesses automate repetitive customer communication and operational tasks with custom AI voice agents that work 24/7."
-    ),
+    domain: env.siteUrl.replace(/^https?:\/\//, "").replace(/\/.*$/, ""),
     email,
     phone,
     phoneFormatted: phone,
-    phoneTel: normalizeTel(phone),
-    calBookingUrl: bookingUrl,
-    calEmbedUrl: embedUrl,
-    aiDemoUrl: getRuntimeEnv("NEXT_PUBLIC_AI_DEMO_URL", ""),
+    phoneTel,
+    description: env.siteDescription,
     tagline: "Custom AI Voice Agents for US Businesses",
     headline: "Turn Every Customer Call Into an Opportunity.",
     subheadline:
@@ -128,20 +266,13 @@ export function getLiveConfig(): SiteConfig {
     trustStatement: "Built for US businesses that depend on calls, customers, and appointments.",
     primaryCtaText: "Book Your 15-Minute AI Discovery",
     secondaryCtaText: "Talk to Our AI",
-    socialLinks: {
-      linkedin: getRuntimeEnv("NEXT_PUBLIC_LINKEDIN_URL", "https://linkedin.com/company/ztechai"),
-      youtube: getRuntimeEnv("NEXT_PUBLIC_YOUTUBE_URL", ""),
-      facebook: getRuntimeEnv("NEXT_PUBLIC_FACEBOOK_URL", ""),
-      instagram: getRuntimeEnv("NEXT_PUBLIC_INSTAGRAM_URL", ""),
-      whatsapp: getRuntimeEnv("NEXT_PUBLIC_WHATSAPP_URL", ""),
-    },
     calculator: {
-      aiCostPerMinute,
+      aiCostPerMinute: env.aiCostPerMinute,
       maxProductiveMinutesPerEmployeePerMonth: 5000,
     },
     analytics: {
-      gaId: getRuntimeEnv("NEXT_PUBLIC_GA_ID", "G-H57HRPFNJ9"),
-      gscVerification: getRuntimeEnv("NEXT_PUBLIC_GSC_VERIFICATION", ""),
+      gaId: env.gaId,
+      gscVerification: env.gscVerification,
     },
     navLinks: [
       { label: "Solutions", href: "/#capabilities" },
@@ -195,35 +326,35 @@ export function getLiveConfig(): SiteConfig {
 /**
  * Validates configuration health at runtime
  */
-export function validateRuntimeConfig(config: SiteConfig = getLiveConfig()): ConfigValidationResult {
+export function validateRuntimeConfig(env: RuntimeEnv = getRuntimeConfig()): ConfigValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  // Check email format
-  if (!config.email || !config.email.includes("@")) {
-    errors.push(`Invalid or missing CONTACT_EMAIL: "${config.email}"`);
+  // Check email
+  if (!env.contactEmail || !env.contactEmail.includes("@")) {
+    errors.push(`Invalid or missing contactEmail: "${env.contactEmail}"`);
   }
 
-  // Check phone length
-  if (!config.phone || config.phone.replace(/\D/g, "").length < 7) {
-    errors.push(`Invalid or missing CONTACT_PHONE: "${config.phone}"`);
+  // Check phone
+  if (!env.contactPhone || env.contactPhone.replace(/\D/g, "").length < 7) {
+    errors.push(`Invalid or missing contactPhone: "${env.contactPhone}"`);
   }
 
   // Check Cal.com booking URL
-  if (!config.calBookingUrl || !config.calBookingUrl.startsWith("http")) {
-    errors.push(`Invalid CAL_BOOKING_URL: "${config.calBookingUrl}"`);
-  } else if (!config.calBookingUrl.includes("cal.com")) {
-    warnings.push(`CAL_BOOKING_URL does not appear to be a cal.com URL: "${config.calBookingUrl}"`);
+  if (!env.calBookingUrl || !env.calBookingUrl.startsWith("http")) {
+    errors.push(`Invalid calBookingUrl: "${env.calBookingUrl}"`);
+  } else if (!env.calBookingUrl.includes("cal.com")) {
+    warnings.push(`calBookingUrl does not use cal.com domain: "${env.calBookingUrl}"`);
   }
 
   // Check AI Cost per minute
-  if (typeof config.calculator.aiCostPerMinute !== "number" || isNaN(config.calculator.aiCostPerMinute) || config.calculator.aiCostPerMinute <= 0) {
-    errors.push(`Invalid AI_COST_PER_MINUTE: must be a positive number, got "${config.calculator.aiCostPerMinute}"`);
+  if (typeof env.aiCostPerMinute !== "number" || isNaN(env.aiCostPerMinute) || env.aiCostPerMinute <= 0) {
+    errors.push(`Invalid aiCostPerMinute: must be a positive number, got "${env.aiCostPerMinute}"`);
   }
 
   // Check Site URL
-  if (!config.siteUrl || !config.siteUrl.startsWith("http")) {
-    errors.push(`Invalid SITE_URL: "${config.siteUrl}"`);
+  if (!env.siteUrl || !env.siteUrl.startsWith("http")) {
+    errors.push(`Invalid siteUrl: "${env.siteUrl}"`);
   }
 
   return {
@@ -233,7 +364,14 @@ export function validateRuntimeConfig(config: SiteConfig = getLiveConfig()): Con
   };
 }
 
-// Plain serializable singleton for initial rendering
-export const siteConfig: SiteConfig = getLiveConfig();
+/**
+ * Dynamic Proxy getter that evaluates live runtime configuration on every access
+ */
+export const siteConfig: SiteConfig = new Proxy({} as SiteConfig, {
+  get(_target, prop: string) {
+    const live = getSiteConfig(getRuntimeConfig());
+    return (live as unknown as Record<string, unknown>)[prop];
+  },
+});
 
 export default siteConfig;

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { siteConfig } from "@/config/site";
 import { useConfig } from "@/components/providers/ConfigProvider";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -54,7 +53,7 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1 rounded-full border border-surface-border bg-surface-muted/70 px-4 py-1.5 backdrop-blur-md shadow-sm">
-            {siteConfig.navLinks.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}

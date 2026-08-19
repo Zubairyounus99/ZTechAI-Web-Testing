@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
 import { blogPosts, getBlogPostBySlug } from "@/data/blogData";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
 import { FinalCta } from "@/components/sections/FinalCta";
 import {
@@ -22,6 +22,9 @@ interface Props {
   params: { slug: string };
 }
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export function generateStaticParams() {
   return blogPosts.map((p) => ({
     slug: p.slug,
@@ -32,8 +35,9 @@ export function generateMetadata({ params }: Props): Metadata {
   const post = getBlogPostBySlug(params.slug);
   if (!post) return {};
 
-  const pageUrl = `${siteConfig.siteUrl}/blog/${post.slug}`;
-  const title = `${post.title} | ZTechAI`;
+  const config = getSiteConfig(getServerRuntimeConfig());
+  const pageUrl = `${config.siteUrl}/blog/${post.slug}`;
+  const title = `${post.title} | ${config.name}`;
   const description = post.excerpt;
 
   return {
@@ -71,6 +75,7 @@ export function generateMetadata({ params }: Props): Metadata {
 }
 
 export default function BlogPostPage({ params }: Props) {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const post = getBlogPostBySlug(params.slug);
 
   if (!post) {

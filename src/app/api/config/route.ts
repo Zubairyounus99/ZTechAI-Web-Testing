@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { getLiveConfig, validateRuntimeConfig } from "@/config/site";
+import { getServerRuntimeConfig, validateRuntimeConfig } from "@/config/site";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const config = getLiveConfig();
+  const config = getServerRuntimeConfig();
   const validation = validateRuntimeConfig(config);
 
   return NextResponse.json(
@@ -13,14 +13,15 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       validation,
       runtimeEnvironment: {
-        siteName: config.name,
+        siteName: config.siteName,
         siteUrl: config.siteUrl,
-        contactEmail: config.email,
-        contactPhone: config.phone,
-        phoneTel: config.phoneTel,
+        contactEmail: config.contactEmail,
+        contactPhone: config.contactPhone,
+        phoneTel: config.contactPhone.replace(/\D/g, ""),
         calBookingUrl: config.calBookingUrl,
         calEmbedUrl: config.calEmbedUrl,
-        aiCostPerMinute: config.calculator.aiCostPerMinute,
+        aiCostPerMinute: config.aiCostPerMinute,
+        gaId: config.gaId,
         socialLinks: config.socialLinks,
       },
     },

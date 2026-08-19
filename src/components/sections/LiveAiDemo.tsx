@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { siteConfig } from "@/config/site";
 import { CalModal } from "@/components/ui/CalModal";
 import { AudioWaveform } from "@/components/ui/AudioWaveform";
 import { trackEvent } from "@/lib/analytics";

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { siteConfig } from "@/config/site";
 import { useConfig } from "@/components/providers/ConfigProvider";
 import { CALCULATOR_CONFIG } from "@/data/calculatorConfig";
 import { calculateROI, CalculatorInputs } from "@/lib/calculator";
@@ -26,7 +25,7 @@ import {
 } from "lucide-react";
 
 export function RoiCalculator() {
-  const { aiCostPerMinute } = useConfig();
+  const { aiCostPerMinute, primaryCtaText } = useConfig();
 
   const [inputs, setInputs] = useState<CalculatorInputs>({
     monthlyCalls: CALCULATOR_CONFIG.DEFAULTS.monthlyCalls,
@@ -367,7 +366,7 @@ export function RoiCalculator() {
                   className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-500 to-accent-600 py-3.5 px-4 text-xs sm:text-sm font-semibold text-white shadow-xl shadow-brand-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   <Calendar className="h-4 w-4" />
-                  <span>{siteConfig.primaryCtaText}</span>
+                  <span>{primaryCtaText}</span>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </button>
 

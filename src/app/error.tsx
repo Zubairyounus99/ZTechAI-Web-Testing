@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import Link from "next/link";
-import { siteConfig } from "@/config/site";
+import { useConfig } from "@/components/providers/ConfigProvider";
 import { RefreshCw, Home, AlertCircle } from "lucide-react";
 
 export default function Error({
@@ -12,6 +12,7 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { phone, phoneTel, phoneFormatted, email } = useConfig();
   useEffect(() => {
     // Log non-sensitive error notice
     console.error("ZTechAI Application Notice:", error.message);
@@ -61,18 +62,18 @@ export default function Error({
         </div>
 
         {/* Quick Contact Help */}
-        {(siteConfig.phone || siteConfig.email) && (
+        {(phone || email) && (
           <div className="pt-6 border-t border-surface-border text-xs text-text-muted">
             Need immediate assistance? Contact our team directly at{" "}
-            {siteConfig.phone && (
-              <a href={`tel:${siteConfig.phoneTel}`} className="text-brand-500 font-bold hover:underline">
-                {siteConfig.phoneFormatted}
+            {phone && (
+              <a href={`tel:${phoneTel}`} className="text-brand-500 font-bold hover:underline">
+                {phoneFormatted}
               </a>
             )}
-            {siteConfig.phone && siteConfig.email && <span> or </span>}
-            {siteConfig.email && (
-              <a href={`mailto:${siteConfig.email}`} className="text-brand-500 font-bold hover:underline">
-                {siteConfig.email}
+            {phone && email && <span> or </span>}
+            {email && (
+              <a href={`mailto:${email}`} className="text-brand-500 font-bold hover:underline">
+                {email}
               </a>
             )}
           </div>

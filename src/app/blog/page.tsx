@@ -1,45 +1,52 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { blogPosts, getAllBlogCategories } from "@/data/blogData";
 import { BlogIndexClient } from "@/components/blog/BlogIndexClient";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { BookOpen } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "AI Voice Agents & Phone Automation Blog | ZTechAI Insights",
-  description:
-    "Expert technical blueprints, industry workflows, and ROI analyses on AI voice agents, 24/7 receptionists, and telephone automation for US businesses.",
-  alternates: {
-    canonical: `${siteConfig.siteUrl}/blog`,
-  },
-  openGraph: {
-    title: "AI Voice Agents & Phone Automation Blog | ZTechAI Insights",
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `AI Voice Agents & Phone Automation Blog | ${config.name} Insights`,
     description:
-      "Expert technical blueprints, industry workflows, and ROI analyses on AI voice agents and telephone automation for US businesses.",
-    url: `${siteConfig.siteUrl}/blog`,
-    type: "website",
-    siteName: "ZTechAI",
-    images: [
-      {
-        url: "/icon.svg",
-        width: 512,
-        height: 512,
-        alt: "ZTechAI Blog & Knowledge Hub",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary",
-    title: "AI Voice Agents & Phone Automation Blog | ZTechAI Insights",
-    description:
-      "Blueprints and operational analyses on AI voice agents for American businesses.",
-    images: ["/icon.svg"],
-  },
-};
+      `Expert technical blueprints, industry workflows, and ROI analyses on AI voice agents, 24/7 receptionists, and telephone automation for US businesses.`,
+    alternates: {
+      canonical: `${config.siteUrl}/blog`,
+    },
+    openGraph: {
+      title: `AI Voice Agents & Phone Automation Blog | ${config.name} Insights`,
+      description:
+        `Expert technical blueprints, industry workflows, and ROI analyses on AI voice agents and telephone automation for US businesses.`,
+      url: `${config.siteUrl}/blog`,
+      type: "website",
+      siteName: config.name,
+      images: [
+        {
+          url: "/icon.svg",
+          width: 512,
+          height: 512,
+          alt: `${config.name} Blog & Knowledge Hub`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary",
+      title: `AI Voice Agents & Phone Automation Blog | ${config.name} Insights`,
+      description:
+        `Blueprints and operational analyses on AI voice agents for American businesses.`,
+      images: ["/icon.svg"],
+    },
+  };
+}
 
 export default function BlogIndexPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const categories = getAllBlogCategories();
   const pageUrl = `${siteConfig.siteUrl}/blog`;
 

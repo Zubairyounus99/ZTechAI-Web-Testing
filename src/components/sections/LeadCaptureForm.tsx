@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { siteConfig } from "@/config/site";
 import { useConfig } from "@/components/providers/ConfigProvider";
 import { CalModal } from "@/components/ui/CalModal";
 import { trackEvent } from "@/lib/analytics";

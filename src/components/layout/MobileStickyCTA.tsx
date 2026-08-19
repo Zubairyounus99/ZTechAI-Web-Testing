@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { siteConfig } from "@/config/site";
 import { CalModal } from "@/components/ui/CalModal";
 import { trackEvent } from "@/lib/analytics";
 import { Calendar, Sparkles } from "lucide-react";

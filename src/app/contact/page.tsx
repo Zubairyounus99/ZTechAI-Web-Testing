@@ -1,23 +1,30 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
 import { Phone, Mail, Sparkles } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Contact ZTechAI — Schedule Your AI Voice Discovery Call",
-  description: `Get in touch with ZTechAI. Reach us at ${siteConfig.email} or call ${siteConfig.phoneFormatted} to discuss custom AI voice automation and 24/7 receptionists for your business.`,
-  alternates: { canonical: `${siteConfig.siteUrl}/contact` },
-  openGraph: {
-    title: "Contact ZTechAI — Schedule Your Discovery Call",
-    description:
-      "Connect with ZTechAI engineering team by phone or email to plan your custom AI voice agent.",
-    url: `${siteConfig.siteUrl}/contact`,
-    type: "website",
-  },
-};
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  const phoneText = config.phoneFormatted ? ` or call ${config.phoneFormatted}` : "";
+  return {
+    title: `Contact ${config.name} — Schedule Your AI Voice Discovery Call`,
+    description: `Get in touch with ${config.name}. Reach us at ${config.email}${phoneText} to discuss custom AI voice automation and 24/7 receptionists for your business.`,
+    alternates: { canonical: `${config.siteUrl}/contact` },
+    openGraph: {
+      title: `Contact ${config.name} — Schedule Your Discovery Call`,
+      description: `Connect with ${config.name} engineering team by phone or email to plan your custom AI voice agent.`,
+      url: `${config.siteUrl}/contact`,
+      type: "website",
+    },
+  };
+}
 
 export default function ContactPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const pageUrl = `${siteConfig.siteUrl}/contact`;
 
   const jsonLd = {

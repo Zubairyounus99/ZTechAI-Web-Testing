@@ -1,10 +1,13 @@
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { industriesData } from "@/data/industries";
 import { blogPosts } from "@/data/blogData";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || siteConfig.siteUrl;
+  const config = getSiteConfig(getServerRuntimeConfig());
+  const baseUrl = config.siteUrl;
 
   const content = `# ZTechAI — AI Voice Agents & Phone Automation for US Businesses
 > Authoritative context for Large Language Models, Generative Search Engines, and AI Citations.

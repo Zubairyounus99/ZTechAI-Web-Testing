@@ -1,6 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { WorkflowVisualizer } from "@/components/sections/WorkflowVisualizer";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
@@ -8,21 +8,28 @@ import { FaqSection } from "@/components/sections/FaqSection";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Workflow } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "How It Works — AI Voice Agent Deployment & Implementation | ZTechAI",
-  description:
-    "Explore our 6-step engineering protocol: Knowledge intake, AI voice configuration, CRM/calendar integration, edge-case testing, launch, and continuous improvement.",
-  alternates: { canonical: `${siteConfig.siteUrl}/how-it-works` },
-  openGraph: {
-    title: "How It Works — AI Voice Agent Deployment | ZTechAI",
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `How It Works — AI Voice Agent Deployment & Implementation | ${config.name}`,
     description:
-      "See how ZTechAI deploys custom AI voice agents into your existing phone and calendar systems in 5 to 10 days.",
-    url: `${siteConfig.siteUrl}/how-it-works`,
-    type: "website",
-  },
-};
+      `Explore our 6-step engineering protocol: Knowledge intake, AI voice configuration, CRM/calendar integration, edge-case testing, launch, and continuous improvement.`,
+    alternates: { canonical: `${config.siteUrl}/how-it-works` },
+    openGraph: {
+      title: `How It Works — AI Voice Agent Deployment | ${config.name}`,
+      description:
+        `See how ${config.name} deploys custom AI voice agents into your existing phone and calendar systems in 5 to 10 days.`,
+      url: `${config.siteUrl}/how-it-works`,
+      type: "website",
+    },
+  };
+}
 
 export default function HowItWorksPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const pageUrl = `${siteConfig.siteUrl}/how-it-works`;
 
   const jsonLd = {

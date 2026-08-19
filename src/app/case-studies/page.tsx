@@ -1,27 +1,34 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { ExampleWorkflows } from "@/components/sections/ExampleWorkflows";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
 import { FaqSection } from "@/components/sections/FaqSection";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { BookOpen } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "AI Voice Agent Case Studies & Example Workflows | ZTechAI",
-  description:
-    "Review detailed example implementations of ZTechAI custom voice agents across Dental Practices, HVAC Contractors, Plumbing Companies, and Local Service Businesses.",
-  alternates: { canonical: `${siteConfig.siteUrl}/case-studies` },
-  openGraph: {
-    title: "AI Voice Agent Case Studies & Example Workflows | ZTechAI",
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `AI Voice Agent Case Studies & Example Workflows | ${config.name}`,
     description:
-      "See step-by-step how custom voice architecture resolves phone bottlenecks and prevents lost revenue.",
-    url: `${siteConfig.siteUrl}/case-studies`,
-    type: "website",
-  },
-};
+      `Review detailed example implementations of ${config.name} custom voice agents across Dental Practices, HVAC Contractors, Plumbing Companies, and Local Service Businesses.`,
+    alternates: { canonical: `${config.siteUrl}/case-studies` },
+    openGraph: {
+      title: `AI Voice Agent Case Studies & Example Workflows | ${config.name}`,
+      description:
+        "See step-by-step how custom voice architecture resolves phone bottlenecks and prevents lost revenue.",
+      url: `${config.siteUrl}/case-studies`,
+      type: "website",
+    },
+  };
+}
 
 export default function CaseStudiesPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const pageUrl = `${siteConfig.siteUrl}/case-studies`;
 
   const jsonLd = {

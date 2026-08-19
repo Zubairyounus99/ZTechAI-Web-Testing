@@ -1,6 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { MissedCallStory } from "@/components/sections/MissedCallStory";
 import { BusinessImpact } from "@/components/sections/BusinessImpact";
 import { Capabilities } from "@/components/sections/Capabilities";
@@ -9,21 +9,28 @@ import { FaqSection } from "@/components/sections/FaqSection";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Bot } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "24/7 AI Receptionist for Local Businesses | ZTechAI",
-  description:
-    "Never miss another customer call. ZTechAI's 24/7 AI receptionist answers on ring 1, screens urgent requests, books appointments, and syncs notes to your CRM.",
-  alternates: { canonical: `${siteConfig.siteUrl}/ai-receptionist` },
-  openGraph: {
-    title: "24/7 AI Receptionist for Local Businesses | ZTechAI",
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `24/7 AI Receptionist for Local Businesses | ${config.name}`,
     description:
-      "24/7 front-desk coverage. Instant call answering, appointment booking, and CRM logging without hiring more staff.",
-    url: `${siteConfig.siteUrl}/ai-receptionist`,
-    type: "website",
-  },
-};
+      `Never miss another customer call. ${config.name}'s 24/7 AI receptionist answers on ring 1, screens urgent requests, books appointments, and syncs notes to your CRM.`,
+    alternates: { canonical: `${config.siteUrl}/ai-receptionist` },
+    openGraph: {
+      title: `24/7 AI Receptionist for Local Businesses | ${config.name}`,
+      description:
+        "24/7 front-desk coverage. Instant call answering, appointment booking, and CRM logging without hiring more staff.",
+      url: `${config.siteUrl}/ai-receptionist`,
+      type: "website",
+    },
+  };
+}
 
 export default function AiReceptionistPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const pageUrl = `${siteConfig.siteUrl}/ai-receptionist`;
 
   const jsonLd = {

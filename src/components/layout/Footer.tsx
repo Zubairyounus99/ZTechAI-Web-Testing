@@ -1,13 +1,12 @@
 import React from "react";
 import Link from "next/link";
-import { siteConfig } from "@/config/site";
 import { useConfig } from "@/components/providers/ConfigProvider";
 import { Logo } from "@/components/ui/Logo";
 import { Mail, Phone, Shield } from "lucide-react";
 import { FooterSocialLinks } from "./FooterSocialLinks";
 
 export function Footer() {
-  const { email, phone, phoneTel, phoneFormatted, config } = useConfig();
+  const { email, phone, phoneTel, phoneFormatted, name } = useConfig();
 
   return (
     <footer className="border-t border-surface-border bg-card-bg text-foreground relative z-10">
@@ -216,7 +215,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-12 pt-8 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-muted">
-          <p>© {new Date().getFullYear()} {siteConfig.name} Inc. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {name} Inc. All rights reserved.</p>
           <p className="text-center sm:text-right">
             Designed for US businesses that depend on calls, customers, and appointments.
           </p>

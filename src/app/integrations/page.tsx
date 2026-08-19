@@ -1,27 +1,34 @@
 import React from "react";
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { getServerRuntimeConfig, getSiteConfig } from "@/config/site";
 import { Integrations } from "@/components/sections/Integrations";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
 import { FaqSection } from "@/components/sections/FaqSection";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Layers } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "AI Voice Integrations — CRM, Practice Software & Calendars | ZTechAI",
-  description:
-    "Connect ZTechAI voice agents with ServiceTitan, Jobber, Housecall Pro, Google Calendar, Outlook, Dentrix, HubSpot, Follow Up Boss, and Zapier with zero friction.",
-  alternates: { canonical: `${siteConfig.siteUrl}/integrations` },
-  openGraph: {
-    title: "AI Voice Integrations — CRM & Calendar Ecosystem | ZTechAI",
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = getSiteConfig(getServerRuntimeConfig());
+  return {
+    title: `AI Voice Integrations — CRM, Practice Software & Calendars | ${config.name}`,
     description:
-      "Explore seamless integrations with your existing phone carriers, calendars, and CRM software.",
-    url: `${siteConfig.siteUrl}/integrations`,
-    type: "website",
-  },
-};
+      `Connect ${config.name} voice agents with ServiceTitan, Jobber, Housecall Pro, Google Calendar, Outlook, Dentrix, HubSpot, Follow Up Boss, and Zapier with zero friction.`,
+    alternates: { canonical: `${config.siteUrl}/integrations` },
+    openGraph: {
+      title: `AI Voice Integrations — CRM & Calendar Ecosystem | ${config.name}`,
+      description:
+        "Explore seamless integrations with your existing phone carriers, calendars, and CRM software.",
+      url: `${config.siteUrl}/integrations`,
+      type: "website",
+    },
+  };
+}
 
 export default function IntegrationsPage() {
+  const siteConfig = getSiteConfig(getServerRuntimeConfig());
   const pageUrl = `${siteConfig.siteUrl}/integrations`;
 
   const jsonLd = {
